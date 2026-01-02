@@ -15,9 +15,13 @@ async def lifespan(app: FastAPI):
     Lifespan context manager for startup and shutdown events
     """
     # Startup: Initialize database
-    print("Initializing database...")
-    await init_db()
-    print("Database initialized successfully!")
+    try:
+        print("Initializing database...")
+        await init_db()
+        print("Database initialized successfully!")
+    except Exception as e:
+        print(f"Database initialization failed: {e}")
+        print("App will start but database operations may fail")
     yield
     # Shutdown: cleanup if needed
     print("Shutting down...")
