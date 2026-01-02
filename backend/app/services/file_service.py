@@ -28,18 +28,33 @@ class FileService:
         # Create notes directory if it doesn't exist
         self.notes_dir.mkdir(parents=True, exist_ok=True)
 
-    def _validate_path(self, user_path: str) -> Path:
+    def _get_user_dir(self, user_id: str) -> Path:
         """
-        Validate that a user-provided path is safe and within notes directory.
+        Get the directory for a specific user.
 
         Args:
+            user_id: User ID
+
+        Returns:
+            Path to user's directory
+        """
+        user_dir = self.notes_dir / f"user_{user_id}"
+        user_dir.mkdir(parents=True, exist_ok=True)
+        return user_dir
+
+    def _validate_path(self, user_id: str, user_path: str) -> Path:
+        """
+        Validate that a user-provided path is safe and within user's directory.
+
+        Args:
+            user_id: User ID
             user_path: User-provided relative path
 
         Returns:
             Resolved absolute path
 
         Raises:
-            ValueError: If path is invalid or outside notes directory
+            ValueError: If path is invalid or outside user's directory
         """
         if not user_path:
             raise ValueError("Path cannot be empty")
@@ -51,12 +66,15 @@ class FileService:
         if ".." in user_path or user_path.startswith("/"):
             raise ValueError("Invalid path: directory traversal not allowed")
 
-        # Resolve the full path
-        full_path = (self.notes_dir / user_path).resolve()
+        # Get user's directory
+        user_dir = self._get_user_dir(user_id)
 
-        # Ensure it's within the notes directory
-        if not full_path.is_relative_to(self.notes_dir):
-            raise ValueError("Invalid path: outside notes directory")
+        # Resolve the full path
+        full_path = (user_dir / user_path).resolve()
+
+        # Ensure it's within the user's directory
+        if not full_path.is_relative_to(user_dir):
+            raise ValueError("Invalid path: outside user directory")
 
         return full_path
 
@@ -76,9 +94,12 @@ class FileService:
                 "Invalid filename: only alphanumeric, dash, underscore, and dot allowed"
             )
 
-    def get_tree(self) -> List[Dict]:
+    def get_tree(self, user_id: str) -> List[Dict]:
         """
-        Build hierarchical folder tree structure.
+        Build hierarchical folder tree structure for a user.
+
+        Args:
+            user_id: User ID
 
         Returns:
             List of folder/file nodes with nested children
@@ -95,9 +116,11 @@ class FileService:
                 }
             ]
         """
+        user_dir = self._get_user_dir(user_id)
+
         def build_tree(path: Path) -> Dict:
             """Recursively build tree for a path."""
-            relative_path = path.relative_to(self.notes_dir)
+            relative_path = path.relative_to(user_dir)
 
             if path.is_file():
                 return {
@@ -124,15 +147,16 @@ class FileService:
                 "children": children
             }
 
-        # Build tree for notes directory
-        tree = build_tree(self.notes_dir)
+        # Build tree for user's directory
+        tree = build_tree(user_dir)
         return tree.get("children", [])
 
-    async def read_file(self, path: str) -> str:
+    async def read_file(self, user_id: str, path: str) -> str:
         """
         Read content of a file.
 
         Args:
+            user_id: User ID
             path: Relative path to the file
 
         Returns:
@@ -142,7 +166,7 @@ class FileService:
             FileNotFoundError: If file doesn't exist
             ValueError: If path is invalid
         """
-        full_path = self._validate_path(path)
+        full_path = self._validate_path(user_id, path)
 
         if not full_path.exists():
             raise FileNotFoundError(f"File not found: {path}")
@@ -153,18 +177,19 @@ class FileService:
         async with aiofiles.open(full_path, 'r', encoding='utf-8') as f:
             return await f.read()
 
-    async def write_file(self, path: str, content: str) -> None:
+    async def write_file(self, user_id: str, path: str, content: str) -> None:
         """
         Write or update a file.
 
         Args:
+            user_id: User ID
             path: Relative path to the file
             content: Content to write
 
         Raises:
             ValueError: If path or filename is invalid
         """
-        full_path = self._validate_path(path)
+        full_path = self._validate_path(user_id, path)
 
         # Validate filename
         self._validate_filename(full_path.name)
@@ -180,18 +205,19 @@ class FileService:
         async with aiofiles.open(full_path, 'w', encoding='utf-8') as f:
             await f.write(content)
 
-    async def delete_file(self, path: str) -> None:
+    async def delete_file(self, user_id: str, path: str) -> None:
         """
         Delete a file.
 
         Args:
+            user_id: User ID
             path: Relative path to the file
 
         Raises:
             FileNotFoundError: If file doesn't exist
             ValueError: If path is invalid or not a file
         """
-        full_path = self._validate_path(path)
+        full_path = self._validate_path(user_id, path)
 
         if not full_path.exists():
             raise FileNotFoundError(f"File not found: {path}")
@@ -201,17 +227,18 @@ class FileService:
 
         full_path.unlink()
 
-    async def create_folder(self, path: str) -> None:
+    async def create_folder(self, user_id: str, path: str) -> None:
         """
         Create a new folder.
 
         Args:
+            user_id: User ID
             path: Relative path to the folder
 
         Raises:
             ValueError: If path is invalid or folder already exists
         """
-        full_path = self._validate_path(path)
+        full_path = self._validate_path(user_id, path)
 
         # Validate folder name (last component)
         folder_name = full_path.name
@@ -225,18 +252,19 @@ class FileService:
 
         full_path.mkdir(parents=True, exist_ok=False)
 
-    async def delete_folder(self, path: str) -> None:
+    async def delete_folder(self, user_id: str, path: str) -> None:
         """
         Delete a folder and all its contents.
 
         Args:
+            user_id: User ID
             path: Relative path to the folder
 
         Raises:
             FileNotFoundError: If folder doesn't exist
             ValueError: If path is invalid or not a folder
         """
-        full_path = self._validate_path(path)
+        full_path = self._validate_path(user_id, path)
 
         if not full_path.exists():
             raise FileNotFoundError(f"Folder not found: {path}")
@@ -248,11 +276,49 @@ class FileService:
         import shutil
         shutil.rmtree(full_path)
 
-    async def search_files(self, query: str) -> List[Dict]:
+    async def copy_folder(self, user_id: str, source_path: str, dest_path: str) -> None:
+        """
+        Copy a folder and all its contents to a new location.
+
+        Args:
+            user_id: User ID
+            source_path: Relative path to the source folder
+            dest_path: Relative path to the destination folder
+
+        Raises:
+            FileNotFoundError: If source folder doesn't exist
+            ValueError: If paths are invalid or destination already exists
+        """
+        import shutil
+
+        source_full = self._validate_path(user_id, source_path)
+        dest_full = self._validate_path(user_id, dest_path)
+
+        if not source_full.exists():
+            raise FileNotFoundError(f"Source folder not found: {source_path}")
+
+        if not source_full.is_dir():
+            raise ValueError(f"Source path is not a folder: {source_path}")
+
+        if dest_full.exists():
+            raise ValueError(f"Destination folder already exists: {dest_path}")
+
+        # Validate destination folder name
+        dest_name = dest_full.name
+        if not re.match(r'^[a-zA-Z0-9_\-]+$', dest_name):
+            raise ValueError(
+                "Invalid destination folder name: only alphanumeric, dash, and underscore allowed"
+            )
+
+        # Copy the entire folder tree
+        shutil.copytree(source_full, dest_full)
+
+    async def search_files(self, user_id: str, query: str) -> List[Dict]:
         """
         Search for files containing a query string.
 
         Args:
+            user_id: User ID
             query: Search query
 
         Returns:
@@ -260,8 +326,9 @@ class FileService:
         """
         results = []
         query_lower = query.lower()
+        user_dir = self._get_user_dir(user_id)
 
-        for file_path in self.notes_dir.rglob("*.md"):
+        for file_path in user_dir.rglob("*.md"):
             try:
                 async with aiofiles.open(file_path, 'r', encoding='utf-8') as f:
                     content = await f.read()
@@ -274,7 +341,7 @@ class FileService:
                         lines[0] if lines else ""
                     )
 
-                    relative_path = file_path.relative_to(self.notes_dir)
+                    relative_path = file_path.relative_to(user_dir)
                     results.append({
                         "path": str(relative_path),
                         "name": file_path.name,

@@ -32,6 +32,7 @@ export interface FolderStore {
   toggleFolder: (path: string) => void;
   createFolder: (path: string) => Promise<void>;
   deleteFolder: (path: string) => Promise<void>;
+  copyFolder: (sourcePath: string, destPath: string) => Promise<void>;
   refresh: () => Promise<void>;
 }
 

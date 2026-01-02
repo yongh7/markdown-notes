@@ -2,14 +2,29 @@
  * Main application component
  */
 
+import { useState } from 'react';
 import { Toolbar } from './components/Toolbar/Toolbar';
 import { FolderTree } from './components/FolderTree/FolderTree';
 import { MonacoEditor } from './components/Editor/MonacoEditor';
 import { MarkdownPreview } from './components/Preview/MarkdownPreview';
+import Login from './components/Auth/Login';
+import Register from './components/Auth/Register';
 import { useUIStore } from './stores/uiStore';
+import { useAuthStore } from './stores/authStore';
 
 function App() {
   const { showPreview, sidebarWidth } = useUIStore();
+  const { isAuthenticated } = useAuthStore();
+  const [showLogin, setShowLogin] = useState(true);
+
+  // Show login/register if not authenticated
+  if (!isAuthenticated()) {
+    if (showLogin) {
+      return <Login onSwitchToRegister={() => setShowLogin(false)} />;
+    } else {
+      return <Register onSwitchToLogin={() => setShowLogin(true)} />;
+    }
+  }
 
   return (
     <div className="h-screen flex flex-col bg-gray-100">

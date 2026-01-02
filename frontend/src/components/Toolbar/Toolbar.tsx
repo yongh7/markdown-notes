@@ -10,15 +10,19 @@ import {
   Eye,
   EyeOff,
   RefreshCw,
+  LogOut,
+  User,
 } from 'lucide-react';
 import { useFileStore } from '../../stores/fileStore';
 import { useFolderStore } from '../../stores/folderStore';
 import { useUIStore } from '../../stores/uiStore';
+import { useAuthStore } from '../../stores/authStore';
 
 export function Toolbar() {
   const { currentFile, deleteFile } = useFileStore();
   const { createFolder, refresh } = useFolderStore();
   const { showPreview, togglePreview } = useUIStore();
+  const { user, logout } = useAuthStore();
   const [showNewFileDialog, setShowNewFileDialog] = useState(false);
   const [showNewFolderDialog, setShowNewFolderDialog] = useState(false);
 
@@ -98,6 +102,23 @@ export function Toolbar() {
         {currentFile && (
           <div className="text-sm text-gray-600">
             <span className="font-medium">Current:</span> {currentFile}
+          </div>
+        )}
+
+        {user && (
+          <div className="flex items-center gap-2 ml-4">
+            <div className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-700 bg-gray-100 rounded">
+              <User className="w-4 h-4" />
+              <span>{user.username}</span>
+            </div>
+            <button
+              onClick={logout}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+              title="Logout"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
+            </button>
           </div>
         )}
       </div>

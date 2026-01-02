@@ -68,6 +68,20 @@ export const useFolderStore = create<FolderStore>((set, get) => ({
   },
 
   /**
+   * Copy a folder to a new location
+   */
+  copyFolder: async (sourcePath: string, destPath: string) => {
+    try {
+      await folderAPI.copy(sourcePath, destPath);
+      // Refresh the tree after copying
+      await get().loadTree();
+    } catch (error) {
+      console.error('Failed to copy folder:', error);
+      throw error;
+    }
+  },
+
+  /**
    * Refresh the folder tree
    */
   refresh: async () => {

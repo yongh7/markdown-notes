@@ -3,8 +3,20 @@
  */
 
 import type { FolderNode, SearchResult } from '../types';
+import { useAuthStore } from '../stores/authStore';
 
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+
+/**
+ * Get authorization headers with JWT token
+ */
+function getAuthHeaders(): HeadersInit {
+  const token = useAuthStore.getState().token;
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+  };
+}
 
 /**
  * File API endpoints
@@ -14,7 +26,9 @@ export const fileAPI = {
    * Get the complete folder tree structure
    */
   async getTree(): Promise<FolderNode[]> {
-    const response = await fetch(`${API_BASE}/files/tree`);
+    const response = await fetch(`${API_BASE}/files/tree`, {
+      headers: getAuthHeaders(),
+    });
     if (!response.ok) {
       throw new Error('Failed to fetch file tree');
     }
@@ -26,7 +40,10 @@ export const fileAPI = {
    */
   async getContent(path: string): Promise<string> {
     const response = await fetch(
-      `${API_BASE}/files/content?path=${encodeURIComponent(path)}`
+      `${API_BASE}/files/content?path=${encodeURIComponent(path)}`,
+      {
+        headers: getAuthHeaders(),
+      }
     );
     if (!response.ok) {
       throw new Error(`Failed to fetch file: ${path}`);
@@ -41,9 +58,7 @@ export const fileAPI = {
   async createFile(path: string, content: string): Promise<void> {
     const response = await fetch(`${API_BASE}/files/`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ path, content }),
     });
     if (!response.ok) {
@@ -58,9 +73,7 @@ export const fileAPI = {
   async updateFile(path: string, content: string): Promise<void> {
     const response = await fetch(`${API_BASE}/files/`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ path, content }),
     });
     if (!response.ok) {
@@ -77,6 +90,7 @@ export const fileAPI = {
       `${API_BASE}/files/?path=${encodeURIComponent(path)}`,
       {
         method: 'DELETE',
+        headers: getAuthHeaders(),
       }
     );
     if (!response.ok) {
@@ -90,7 +104,10 @@ export const fileAPI = {
    */
   async search(query: string): Promise<SearchResult[]> {
     const response = await fetch(
-      `${API_BASE}/files/search?q=${encodeURIComponent(query)}`
+      `${API_BASE}/files/search?q=${encodeURIComponent(query)}`,
+      {
+        headers: getAuthHeaders(),
+      }
     );
     if (!response.ok) {
       throw new Error('Search failed');
@@ -110,9 +127,7 @@ export const folderAPI = {
   async create(path: string): Promise<void> {
     const response = await fetch(`${API_BASE}/folders/`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ path }),
     });
     if (!response.ok) {
@@ -129,11 +144,27 @@ export const folderAPI = {
       `${API_BASE}/folders/?path=${encodeURIComponent(path)}`,
       {
         method: 'DELETE',
+        headers: getAuthHeaders(),
       }
     );
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.detail || 'Failed to delete folder');
+    }
+  },
+
+  /**
+   * Copy a folder and all its contents to a new location
+   */
+  async copy(sourcePath: string, destPath: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/folders/copy`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ source_path: sourcePath, dest_path: destPath }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Failed to copy folder');
     }
   },
 };
