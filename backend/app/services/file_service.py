@@ -177,18 +177,26 @@ class FileService:
         async with aiofiles.open(full_path, 'r', encoding='utf-8') as f:
             return await f.read()
 
-    async def write_file(self, user_id: str, path: str, content: str) -> None:
+    async def write_file(self, user_id: str, path: str, content: str, db: Optional['AsyncSession'] = None) -> Optional[str]:
         """
-        Write or update a file.
+        Write or update a file and optionally sync with database.
 
         Args:
             user_id: User ID
             path: Relative path to the file
             content: Content to write
+            db: Optional database session for syncing metadata
+
+        Returns:
+            File ID (UUID as string) if db provided, None otherwise
 
         Raises:
             ValueError: If path or filename is invalid
         """
+        import uuid as uuid_lib
+        from sqlalchemy import select
+        from sqlalchemy.sql import func
+
         full_path = self._validate_path(user_id, path)
 
         # Validate filename
@@ -205,18 +213,64 @@ class FileService:
         async with aiofiles.open(full_path, 'w', encoding='utf-8') as f:
             await f.write(content)
 
-    async def delete_file(self, user_id: str, path: str) -> None:
+        # Sync with database if db session provided
+        if db:
+            from ..models.file import File
+
+            # Extract title from filename (remove extension, replace separators with spaces)
+            title = full_path.stem.replace('-', ' ').replace('_', ' ').title()
+
+            # Generate preview (first 200 chars)
+            preview = content[:200] if content else None
+
+            # Check if file record exists
+            query = select(File).where(
+                File.user_id == uuid_lib.UUID(user_id),
+                File.file_path == path
+            )
+            result = await db.execute(query)
+            file_record = result.scalar_one_or_none()
+
+            if file_record:
+                # Update existing record
+                file_record.title = title
+                file_record.preview = preview
+                file_record.updated_at = func.now()
+                file_id = file_record.id
+            else:
+                # Create new record
+                file_record = File(
+                    user_id=uuid_lib.UUID(user_id),
+                    file_path=path,
+                    title=title,
+                    preview=preview,
+                    is_public=False
+                )
+                db.add(file_record)
+                file_id = file_record.id
+
+            await db.commit()
+            await db.refresh(file_record)
+            return str(file_id)
+
+        return None
+
+    async def delete_file(self, user_id: str, path: str, db: Optional['AsyncSession'] = None) -> None:
         """
-        Delete a file.
+        Delete a file and optionally delete database record.
 
         Args:
             user_id: User ID
             path: Relative path to the file
+            db: Optional database session for deleting metadata
 
         Raises:
             FileNotFoundError: If file doesn't exist
             ValueError: If path is invalid or not a file
         """
+        import uuid as uuid_lib
+        from sqlalchemy import select
+
         full_path = self._validate_path(user_id, path)
 
         if not full_path.exists():
@@ -226,6 +280,21 @@ class FileService:
             raise ValueError(f"Path is not a file: {path}")
 
         full_path.unlink()
+
+        # Delete from database if db session provided
+        if db:
+            from ..models.file import File
+
+            query = select(File).where(
+                File.user_id == uuid_lib.UUID(user_id),
+                File.file_path == path
+            )
+            result = await db.execute(query)
+            file_record = result.scalar_one_or_none()
+
+            if file_record:
+                await db.delete(file_record)
+                await db.commit()
 
     async def create_folder(self, user_id: str, path: str) -> None:
         """

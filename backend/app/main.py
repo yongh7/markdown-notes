@@ -5,7 +5,7 @@ FastAPI application for the Knowledge Base backend.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from .api.routes import files, folders, auth
+from .api.routes import files, folders, auth, public
 from .core.database import init_db
 
 
@@ -54,6 +54,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth.router)  # Auth routes (no authentication required)
+app.include_router(public.router)  # Public routes (no authentication required)
 app.include_router(files.router)  # File routes (authentication required)
 app.include_router(folders.router)  # Folder routes (authentication required)
 
