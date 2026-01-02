@@ -119,7 +119,7 @@ export const fileAPI = {
   /**
    * Get metadata for all user's files
    */
-  async getMetadata(): Promise<any[]> {
+  async getMetadata(): Promise<{ files: any[]; count: number }> {
     const response = await fetch(`${API_BASE}/files/metadata`, {
       headers: getAuthHeaders(),
     });
