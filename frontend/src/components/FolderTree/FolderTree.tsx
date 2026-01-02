@@ -3,7 +3,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { ChevronRight, ChevronDown, Folder, File, Plus, Trash2, Copy, FolderPlus, FilePlus, Check, X } from 'lucide-react';
+import { ChevronRight, ChevronDown, Folder, File, Trash2, Copy, FolderPlus, FilePlus, Check, X } from 'lucide-react';
 import { useFolderStore } from '../../stores/folderStore';
 import { useFileStore } from '../../stores/fileStore';
 import type { FolderNode } from '../../types';
@@ -116,8 +116,7 @@ function TreeNode({
   onStartCreating,
   onCancelCreating,
 }: TreeNodeProps) {
-  const { deleteFolder, copyFolder, refresh, deleteFile } = useFolderStore();
-  const { deleteFile: deleteFileFromStore } = useFileStore();
+  const { deleteFolder, copyFolder, refresh } = useFolderStore();
   const [showActions, setShowActions] = useState(false);
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
