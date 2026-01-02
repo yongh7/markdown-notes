@@ -20,12 +20,14 @@ export const useFileStore = create<FileStore>((set, get) => ({
    */
   loadMetadata: async () => {
     try {
-      const metadataList = await fileAPI.getMetadata();
+      const response = await fileAPI.getMetadata();
+      const metadataList = response.files || response; // Handle both {files: []} and [] formats
       const metadataMap = new Map<string, FileMetadata>();
       metadataList.forEach((item: FileMetadata) => {
         metadataMap.set(item.file_path, item);
       });
       set({ metadata: metadataMap });
+      console.log('Loaded metadata for', metadataMap.size, 'files');
     } catch (error) {
       console.error('Failed to load file metadata:', error);
     }
@@ -88,6 +90,8 @@ export const useFileStore = create<FileStore>((set, get) => ({
   createFile: async (path: string, content: string) => {
     try {
       await fileAPI.createFile(path, content);
+      // Reload metadata to get the new file's ID and privacy status
+      await get().loadMetadata();
       // Optionally load the new file
       await get().loadFile(path);
     } catch (error) {

@@ -1,5 +1,5 @@
 /**
- * Type definitions for the Knowledge Base application
+ * Type definitions for the Downwrite application
  */
 
 export interface FolderNode {

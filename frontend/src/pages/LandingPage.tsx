@@ -26,7 +26,7 @@ export default function LandingPage() {
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <FileText className="w-8 h-8 text-blue-600" />
-                <h1 className="text-2xl font-bold text-gray-900">Knowledge Base</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Downwrite</h1>
               </div>
               <button
                 onClick={() => navigate('/workspace')}
@@ -43,7 +43,7 @@ export default function LandingPage() {
           {/* Hero Section */}
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Welcome to Your Knowledge Base
+              Welcome to Downwrite
             </h2>
             <p className="text-xl text-gray-600 mb-8">
               Organize your thoughts, share your knowledge
@@ -113,7 +113,7 @@ export default function LandingPage() {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <FileText className="w-8 h-8 text-blue-600" />
-              <h1 className="text-2xl font-bold text-gray-900">Knowledge Base</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Downwrite</h1>
             </div>
             <div className="flex gap-4">
               <button
@@ -139,7 +139,7 @@ export default function LandingPage() {
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h2 className="text-5xl font-bold text-gray-900 mb-6">
-            Your Personal Knowledge Base
+            Write Down, Share Ideas
           </h2>
           <p className="text-xl text-gray-600 mb-8">
             Create, organize, and share your markdown notes with the world

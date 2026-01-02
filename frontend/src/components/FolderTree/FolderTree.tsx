@@ -3,7 +3,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { ChevronRight, ChevronDown, Folder, File, Copy, Trash2, X } from 'lucide-react';
+import { ChevronRight, ChevronDown, Folder, File, Copy, Trash2, X, FilePlus } from 'lucide-react';
 import { useFolderStore } from '../../stores/folderStore';
 import { useFileStore } from '../../stores/fileStore';
 import type { FolderNode } from '../../types';
@@ -72,6 +72,7 @@ function TreeNode({
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   const [showCopyDialog, setShowCopyDialog] = useState(false);
+  const [showNewFileDialog, setShowNewFileDialog] = useState(false);
 
   const isExpanded = expandedFolders.has(node.path);
   const isSelected = currentFile === node.path;
@@ -99,6 +100,11 @@ function TreeNode({
   const handleCopyFolder = () => {
     setShowContextMenu(false);
     setShowCopyDialog(true);
+  };
+
+  const handleNewFile = () => {
+    setShowContextMenu(false);
+    setShowNewFileDialog(true);
   };
 
   // Close context menu when clicking outside
@@ -173,6 +179,13 @@ function TreeNode({
           style={{ left: contextMenuPosition.x, top: contextMenuPosition.y }}
         >
           <button
+            onClick={handleNewFile}
+            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
+          >
+            <FilePlus className="w-4 h-4" />
+            New File Here
+          </button>
+          <button
             onClick={handleCopyFolder}
             className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
           >
@@ -204,6 +217,15 @@ function TreeNode({
               alert('Failed to copy folder. Make sure the destination name is valid and doesn\'t already exist.');
             }
           }}
+        />
+      )}
+
+      {/* New File Dialog */}
+      {showNewFileDialog && (
+        <NewFileDialog
+          folderPath={node.path}
+          folderName={node.name}
+          onClose={() => setShowNewFileDialog(false)}
         />
       )}
     </>
@@ -283,6 +305,85 @@ function CopyFolderDialog({ sourcePath, sourceName, onClose, onCopy }: CopyFolde
               disabled={isLoading}
             >
               {isLoading ? 'Copying...' : 'Copy'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+interface NewFileDialogProps {
+  folderPath: string;
+  folderName: string;
+  onClose: () => void;
+}
+
+function NewFileDialog({ folderPath, folderName, onClose }: NewFileDialogProps) {
+  const [fileName, setFileName] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { createFile } = useFileStore();
+  const { refresh } = useFolderStore();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fileName.trim()) return;
+
+    setIsLoading(true);
+    try {
+      const filePath = `${folderPath}/${fileName}${fileName.endsWith('.md') ? '' : '.md'}`;
+
+      await createFile(filePath, '# New Note\n\nStart writing...');
+      await refresh();
+      onClose();
+    } catch (error) {
+      alert('Failed to create file. Make sure the filename is valid.');
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-96">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold">New File in {folderName}</h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              File Name:
+            </label>
+            <input
+              type="text"
+              value={fileName}
+              onChange={(e) => setFileName(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="my-note.md"
+              autoFocus
+              disabled={isLoading}
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Will be created at: {folderPath}/{fileName || '...'}{fileName && !fileName.endsWith('.md') ? '.md' : ''}
+            </p>
+          </div>
+          <div className="flex gap-2 justify-end">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+              disabled={isLoading}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Creating...' : 'Create'}
             </button>
           </div>
         </form>

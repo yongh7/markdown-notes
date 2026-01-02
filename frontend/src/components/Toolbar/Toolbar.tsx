@@ -3,6 +3,7 @@
  */
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   FilePlus,
   FolderPlus,
@@ -12,6 +13,7 @@ import {
   RefreshCw,
   LogOut,
   User,
+  Home,
 } from 'lucide-react';
 import { useFileStore } from '../../stores/fileStore';
 import { useFolderStore } from '../../stores/folderStore';
@@ -24,12 +26,22 @@ export function Toolbar() {
   const { refresh } = useFolderStore();
   const { showPreview, togglePreview } = useUIStore();
   const { user, logout } = useAuthStore();
+  const navigate = useNavigate();
   const [showNewFileDialog, setShowNewFileDialog] = useState(false);
   const [showNewFolderDialog, setShowNewFolderDialog] = useState(false);
 
   return (
     <div className="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between">
       <div className="flex items-center gap-2">
+        <button
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+          title="Back to Landing Page"
+        >
+          <Home className="w-4 h-4" />
+          <span>Home</span>
+        </button>
+
         <button
           onClick={() => setShowNewFileDialog(true)}
           className="flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
