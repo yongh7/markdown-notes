@@ -9,17 +9,29 @@ export interface FolderNode {
   children?: FolderNode[];
 }
 
+export interface FileMetadata {
+  id: string;
+  file_path: string;
+  is_public: boolean;
+  title: string;
+}
+
 export interface FileStore {
   currentFile: string | null;
+  currentFileId: string | null;
+  isPublic: boolean;
   content: string;
   isDirty: boolean;
   isLoading: boolean;
+  metadata: Map<string, FileMetadata>;
 
   loadFile: (path: string) => Promise<void>;
   updateContent: (content: string) => void;
   saveFile: () => Promise<void>;
   createFile: (path: string, content: string) => Promise<void>;
   deleteFile: (path: string) => Promise<void>;
+  loadMetadata: () => Promise<void>;
+  togglePrivacy: () => Promise<void>;
   reset: () => void;
 }
 

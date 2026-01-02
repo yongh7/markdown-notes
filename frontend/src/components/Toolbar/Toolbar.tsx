@@ -17,6 +17,7 @@ import { useFileStore } from '../../stores/fileStore';
 import { useFolderStore } from '../../stores/folderStore';
 import { useUIStore } from '../../stores/uiStore';
 import { useAuthStore } from '../../stores/authStore';
+import { PrivacyToggle } from './PrivacyToggle';
 
 export function Toolbar() {
   const { currentFile, deleteFile } = useFileStore();
@@ -98,6 +99,8 @@ export function Toolbar() {
             </>
           )}
         </button>
+
+        <PrivacyToggle />
 
         {currentFile && (
           <div className="text-sm text-gray-600">

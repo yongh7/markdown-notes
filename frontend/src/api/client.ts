@@ -115,6 +115,36 @@ export const fileAPI = {
     const data = await response.json();
     return data.results;
   },
+
+  /**
+   * Get metadata for all user's files
+   */
+  async getMetadata(): Promise<any[]> {
+    const response = await fetch(`${API_BASE}/files/metadata`, {
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch file metadata');
+    }
+    return response.json();
+  },
+
+  /**
+   * Toggle file privacy (public/private)
+   */
+  async togglePrivacy(fileId: string, isPublic: boolean): Promise<void> {
+    const response = await fetch(
+      `${API_BASE}/files/${fileId}/privacy?is_public=${isPublic}`,
+      {
+        method: 'PATCH',
+        headers: getAuthHeaders(),
+      }
+    );
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Failed to update file privacy');
+    }
+  },
 };
 
 /**

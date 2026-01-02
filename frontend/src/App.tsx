@@ -1,62 +1,52 @@
 /**
- * Main application component
+ * Main application component with routing
  */
 
-import { useState } from 'react';
-import { Toolbar } from './components/Toolbar/Toolbar';
-import { FolderTree } from './components/FolderTree/FolderTree';
-import { MonacoEditor } from './components/Editor/MonacoEditor';
-import { MarkdownPreview } from './components/Preview/MarkdownPreview';
-import Login from './components/Auth/Login';
-import Register from './components/Auth/Register';
-import { useUIStore } from './stores/uiStore';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
+import LandingPage from './pages/LandingPage';
+import Workspace from './pages/Workspace';
+import PublicNoteViewer from './pages/PublicNoteViewer';
+import UserProfile from './pages/UserProfile';
 
-function App() {
-  const { showPreview, sidebarWidth } = useUIStore();
+// Protected route component
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
-  const [showLogin, setShowLogin] = useState(true);
 
-  // Show login/register if not authenticated
   if (!isAuthenticated()) {
-    if (showLogin) {
-      return <Login onSwitchToRegister={() => setShowLogin(false)} />;
-    } else {
-      return <Register onSwitchToLogin={() => setShowLogin(true)} />;
-    }
+    return <Navigate to="/" replace />;
   }
 
+  return <>{children}</>;
+}
+
+function App() {
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
-      {/* Toolbar */}
-      <Toolbar />
+    <BrowserRouter>
+      <Routes>
+        {/* Landing page - public */}
+        <Route path="/" element={<LandingPage />} />
 
-      {/* Main content area */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar - Folder Tree */}
-        <div
-          className="flex-shrink-0 h-full"
-          style={{ width: `${sidebarWidth}px` }}
-        >
-          <FolderTree />
-        </div>
+        {/* Workspace - protected */}
+        <Route
+          path="/workspace"
+          element={
+            <ProtectedRoute>
+              <Workspace />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* Editor Area */}
-        <div className="flex-1 h-full flex">
-          {/* Monaco Editor */}
-          <div className={showPreview ? 'flex-1' : 'w-full'}>
-            <MonacoEditor key={showPreview ? 'with-preview' : 'no-preview'} />
-          </div>
+        {/* Public note viewer - public */}
+        <Route path="/note/:fileId" element={<PublicNoteViewer />} />
 
-          {/* Preview Pane */}
-          {showPreview && (
-            <div className="flex-1">
-              <MarkdownPreview />
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+        {/* User profile - public */}
+        <Route path="/profile/:userId" element={<UserProfile />} />
+
+        {/* Catch all - redirect to landing */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
