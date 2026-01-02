@@ -31,7 +31,8 @@ export function MarkdownPreview() {
             rehypePlugins={[rehypeKatex]}
             components={{
               // Custom code block styling
-              code({ node, inline, className, children, ...props }) {
+              code({ node, className, children, ...props }: any) {
+                const inline = !className;
                 return inline ? (
                   <code
                     className="bg-gray-100 text-pink-600 px-1.5 py-0.5 rounded text-sm font-mono"

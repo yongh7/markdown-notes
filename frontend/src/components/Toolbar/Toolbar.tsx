@@ -20,7 +20,7 @@ import { useAuthStore } from '../../stores/authStore';
 
 export function Toolbar() {
   const { currentFile, deleteFile } = useFileStore();
-  const { createFolder, refresh } = useFolderStore();
+  const { refresh } = useFolderStore();
   const { showPreview, togglePreview } = useUIStore();
   const { user, logout } = useAuthStore();
   const [showNewFileDialog, setShowNewFileDialog] = useState(false);

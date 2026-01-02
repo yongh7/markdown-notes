@@ -9,7 +9,7 @@ import { useFileStore } from '../../stores/fileStore';
 export function MonacoEditor() {
   const { content, updateContent, saveFile, isDirty, currentFile } =
     useFileStore();
-  const saveTimeoutRef = useRef<NodeJS.Timeout>();
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   const handleChange = (value: string | undefined) => {
     if (value !== undefined && value !== content) {
