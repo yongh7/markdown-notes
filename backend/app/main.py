@@ -41,6 +41,7 @@ origins = [
     "http://localhost:4173",  # Vite preview
     "http://127.0.0.1:5173",
     "http://127.0.0.1:4173",
+    "https://frontend-production-2c90.up.railway.app",  # Production frontend
 ]
 
 app.add_middleware(
