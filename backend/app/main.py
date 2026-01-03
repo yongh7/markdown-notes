@@ -42,8 +42,8 @@ origins = [
     "http://127.0.0.1:5173",
     "http://127.0.0.1:4173",
     "https://frontend-production-2c90.up.railway.app",  # Production frontend (Railway)
-    "https://www.mynotes.com",  # Custom domain (replace with your actual domain)
-    "https://mynotes.com",  # Root domain
+    "https://www.down-write.com",  # Custom domain
+    "https://down-write.com",  # Root domain
 ]
 
 app.add_middleware(
