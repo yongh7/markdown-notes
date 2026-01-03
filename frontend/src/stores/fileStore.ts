@@ -27,7 +27,6 @@ export const useFileStore = create<FileStore>((set, get) => ({
         metadataMap.set(item.file_path, item);
       });
       set({ metadata: metadataMap });
-      console.log('Loaded metadata for', metadataMap.size, 'files');
     } catch (error) {
       console.error('Failed to load file metadata:', error);
     }
