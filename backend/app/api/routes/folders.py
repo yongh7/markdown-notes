@@ -4,14 +4,16 @@ API routes for folder operations.
 
 from fastapi import APIRouter, HTTPException, Query, Depends
 from pydantic import BaseModel
+import os
 from ...services.file_service import FileService
 from ...core.auth import get_current_active_user
 from ...models.user import User
 
 router = APIRouter(prefix="/api/folders", tags=["folders"])
 
-# Initialize file service
-file_service = FileService()
+# Initialize file service with environment-based notes directory
+notes_dir = os.getenv("NOTES_DIR", "../notes")
+file_service = FileService(notes_dir=notes_dir)
 
 
 class FolderCreate(BaseModel):

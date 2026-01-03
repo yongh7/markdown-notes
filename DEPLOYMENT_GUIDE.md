@@ -67,13 +67,26 @@ git push origin main
    ```
    JWT_SECRET_KEY=your-super-secret-jwt-key-change-this-now-random-string-a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
    ENVIRONMENT=production
+   NOTES_DIR=/app/notes
    ```
 
    Note: `DATABASE_URL` is automatically added by Railway when you connect PostgreSQL
 
-4. Click "Deploy"
-5. Wait for deployment (2-3 minutes)
-6. Railway gives you a URL like: `https://backend-production-xxxx.up.railway.app`
+4. **Add Persistent Storage Volume** (CRITICAL - prevents file loss on deployment):
+   - Still in the backend service, go to "Settings" tab
+   - Scroll down to "Volumes" section
+   - Click "+ Add Volume"
+   - Configure the volume:
+     - **Mount Path**: `/app/notes`
+     - **Size**: 1GB (or more based on your needs)
+   - Click "Add"
+
+   ⚠️ **Important**: Without this volume, all user files will be deleted on every deployment!
+   The volume persists your markdown files across deployments.
+
+5. Click "Deploy"
+6. Wait for deployment (2-3 minutes)
+7. Railway gives you a URL like: `https://backend-production-xxxx.up.railway.app`
 
 ### **Step 6: Deploy Frontend**
 
@@ -224,6 +237,15 @@ Railway Dashboard → Service → "Deployments" → Click previous deployment �
 ```
 
 ## 🐛 Troubleshooting
+
+### **Files disappear after deployment**:
+- **Cause**: Railway uses ephemeral storage - the filesystem is wiped on each deployment
+- **Solution**: Add a Railway Volume (see Step 5, substep 4)
+  1. Go to backend service → Settings → Volumes
+  2. Add volume with mount path `/app/notes`
+  3. Add environment variable `NOTES_DIR=/app/notes`
+  4. Redeploy the service
+- **Note**: Database persists (users, file metadata), but actual `.md` files need a volume
 
 ### **Frontend can't connect to backend**:
 - Check `VITE_API_URL` environment variable

@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 from typing import List
 from uuid import UUID
+import os
 
 from ...core.database import get_db
 from ...models.file import File
@@ -15,7 +16,8 @@ from ..schemas.file import PublicNoteResponse
 from ...services.file_service import FileService
 
 router = APIRouter(prefix="/api/public", tags=["public"])
-file_service = FileService()
+notes_dir = os.getenv("NOTES_DIR", "../notes")
+file_service = FileService(notes_dir=notes_dir)
 
 
 @router.get("/notes", response_model=List[PublicNoteResponse])

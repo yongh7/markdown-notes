@@ -8,6 +8,7 @@ from typing import List, Dict
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+import os
 
 from ...services.file_service import FileService
 from ...core.auth import get_current_active_user
@@ -17,8 +18,10 @@ from ...models.file import File
 
 router = APIRouter(prefix="/api/files", tags=["files"])
 
-# Initialize file service
-file_service = FileService()
+# Initialize file service with environment-based notes directory
+# Use NOTES_DIR env var if set (for Railway volume), otherwise use default
+notes_dir = os.getenv("NOTES_DIR", "../notes")
+file_service = FileService(notes_dir=notes_dir)
 
 
 class FileContent(BaseModel):
