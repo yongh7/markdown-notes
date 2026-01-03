@@ -1,259 +1,279 @@
-# Personal Knowledge Base
+# Downwrite
 
-A modern, markdown-based personal knowledge base with folder navigation, Monaco Editor, and math rendering support.
+**Write Down, Share Ideas** - A modern markdown note-taking app with public/private notes, inline creation, and beautiful editing experience.
 
-## Features
+🌐 **Live Demo**: [Your Railway URL]
 
-- **Markdown Editor**: Monaco Editor (VS Code's editor) for a powerful editing experience
-- **Folder Navigation**: Organize notes in folders (algorithms, stats, etc.)
-- **Math Support**: LaTeX math rendering with KaTeX
-- **Live Preview**: Real-time markdown preview with syntax highlighting
-- **Auto-save**: Automatic saving with debouncing
-- **File Management**: Create, edit, delete files and folders
-- **Search**: Full-text search across all notes
-- **Keyboard Shortcuts**: Ctrl+S to save, and more
+## ✨ Features
 
-## Tech Stack
+### 📝 Powerful Editor
+- **Monaco Editor** - VS Code's editor for markdown
+- **Live Preview** - Real-time rendering with syntax highlighting
+- **Math Support** - LaTeX math rendering with KaTeX
+- **Auto-save** - Never lose your work
 
-### Frontend ✅ (Complete - Ready to Run)
-- React + Vite + TypeScript
-- Monaco Editor (VS Code's editor)
-- Zustand (state management)
-- Tailwind CSS (styling)
-- react-markdown + KaTeX (markdown rendering with math)
+### 📁 Smart Organization
+- **Inline Creation** - Hover folders to create files/folders instantly
+- **Nested Folders** - Organize notes in deep hierarchies
+- **Visual Tree** - See your entire note structure at a glance
+- **No Modals** - Fast, inline editing like VS Code
 
-### Backend ✅ (Running)
-- FastAPI (Python)
-- File system storage (markdown as `.md` files)
-- Async file operations
-- Path validation and security
+### 🌐 Knowledge Sharing
+- **Public Notes** - Share your knowledge with the world
+- **Private Notes** - Keep personal notes private
+- **Public Feed** - Browse recent public notes from all users
+- **User Profiles** - View anyone's public notes collection
+- **Privacy Toggle** - One-click to make notes public/private
 
-## Project Structure
+### 👥 Multi-User
+- **User Authentication** - Secure JWT-based auth
+- **Personal Workspace** - Your own private editing space
+- **User Isolation** - Notes stored per-user (`notes/user_<id>/`)
+- **Profile Pages** - Each user gets a public profile
 
-```
-knowledge-base/
-├── frontend/           # React + Vite (requires Node.js)
-├── backend/            # FastAPI (Python) ✅ WORKING
-│   ├── app/
-│   │   ├── api/routes/
-│   │   ├── services/
-│   │   └── main.py
-│   └── requirements.txt
-└── notes/              # Your markdown files ✅
-    ├── algorithms/
-    │   └── sorting.md
-    ├── stats/
-    │   └── probability.md
-    └── README.md
-```
+### 🎨 Beautiful UI
+- **Modern Design** - Clean, professional interface
+- **Responsive** - Works on desktop, tablet, mobile
+- **Dark Editor** - Easy on the eyes for long writing sessions
+- **Tailwind CSS** - Fast, beautiful styling
 
-## Current Status
+## 🏗️ Tech Stack
 
-✅ **Backend: Complete and Running**
-- FastAPI server running on http://localhost:8000
-- All file operations working (create, read, update, delete)
-- Folder management working
-- Search functionality working
-- API docs available at http://localhost:8000/docs
+### Frontend
+- **React** + **TypeScript** + **Vite**
+- **Monaco Editor** - Code editor component
+- **React Router** - Client-side routing
+- **Zustand** - State management
+- **TailwindCSS** - Styling
+- **react-markdown** + **KaTeX** - Markdown rendering
 
-✅ **Frontend: Complete (Requires Node.js to Run)**
-- All React components built and ready
-- Monaco Editor integration complete
-- Markdown preview with KaTeX ready
-- Zustand state management configured
-- Tailwind CSS styling complete
-- **Just need to install Node.js and run `npm install`!**
+### Backend
+- **FastAPI** (Python) - High-performance API
+- **PostgreSQL** - Database for users & metadata
+- **SQLAlchemy** - ORM with async support
+- **JWT** - Authentication
+- **Bcrypt** - Password hashing
+- **File System** - Notes stored as `.md` files
 
-## Quick Start
+### Infrastructure
+- **Railway** - Cloud deployment
+- **GitHub** - Version control & CI/CD
+- **Environment-based config** - Dev/prod separation
 
-### Backend (Already Running)
+## 🚀 Quick Start (Local Development)
 
-The backend is currently running on http://localhost:8000
+### Prerequisites
+- Python 3.9+
+- Node.js 18+ (or 20+ for react-router v7)
+- PostgreSQL
 
-To restart it:
-```bash
-cd backend
-source venv/bin/activate
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
+### Backend Setup
 
-Test the API:
-```bash
-# View API docs
-open http://localhost:8000/docs
-
-# Get file tree
-curl http://localhost:8000/api/files/tree
-
-# Get file content
-curl "http://localhost:8000/api/files/content?path=algorithms/sorting.md"
-```
-
-### Frontend Setup (Simple 3-Step Process)
-
-1. **Install Node.js**:
+1. **Create virtual environment**:
    ```bash
-   # Using Homebrew (macOS)
-   brew install node
-
-   # Or using nvm (recommended)
-   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-   nvm install --lts
+   cd backend
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-2. **Install Dependencies**:
+2. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Set up database**:
+   ```bash
+   # Create PostgreSQL database
+   createdb downwrite_db
+
+   # Set environment variable
+   export DATABASE_URL="postgresql://user:password@localhost/downwrite_db"
+   ```
+
+4. **Initialize database**:
+   ```bash
+   python -c "from app.core.database import init_db; import asyncio; asyncio.run(init_db())"
+   ```
+
+5. **Start backend**:
+   ```bash
+   uvicorn app.main:app --reload --port 8000
+   ```
+
+### Frontend Setup
+
+1. **Install dependencies**:
    ```bash
    cd frontend
    npm install
    ```
 
-3. **Start the App**:
+2. **Set API URL**:
+   ```bash
+   # Create .env file
+   echo "VITE_API_URL=http://localhost:8000/api" > .env
+   ```
+
+3. **Start frontend**:
    ```bash
    npm run dev
    ```
 
-4. **Open in Browser**:
-   - Frontend: **http://localhost:5173**
-   - Backend API: http://localhost:8000
+4. **Open browser**:
+   - Frontend: http://localhost:5173
+   - Backend API docs: http://localhost:8000/docs
 
-## API Endpoints
+## 📦 Project Structure
 
-### Files
+```
+downwrite/
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── routes/
+│   │   │   │   ├── auth.py          # Authentication endpoints
+│   │   │   │   ├── files.py         # File CRUD + privacy
+│   │   │   │   ├── folders.py       # Folder operations
+│   │   │   │   └── public.py        # Public feed & profiles
+│   │   │   └── schemas/             # Pydantic models
+│   │   ├── core/
+│   │   │   ├── auth.py              # JWT utilities
+│   │   │   ├── database.py          # Database config
+│   │   │   └── security.py          # Password hashing
+│   │   ├── models/
+│   │   │   ├── user.py              # User model
+│   │   │   └── file.py              # File metadata model
+│   │   ├── services/
+│   │   │   ├── file_service.py      # File operations
+│   │   │   └── folder_service.py    # Folder operations
+│   │   └── main.py                  # FastAPI app
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Auth/                # Login, Register
+│   │   │   ├── Editor/              # Monaco Editor
+│   │   │   ├── FolderTree/          # Tree with inline creation
+│   │   │   ├── Preview/             # Markdown preview
+│   │   │   ├── Public/              # Public feed components
+│   │   │   └── Toolbar/             # Top toolbar + privacy toggle
+│   │   ├── pages/
+│   │   │   ├── LandingPage.tsx      # Home with public feed
+│   │   │   ├── Workspace.tsx        # Editor workspace
+│   │   │   ├── PublicNoteViewer.tsx # Read-only note view
+│   │   │   └── UserProfile.tsx      # User's public notes
+│   │   ├── stores/                  # Zustand state
+│   │   ├── api/                     # API client
+│   │   └── App.tsx                  # Router config
+│   └── package.json
+├── notes/                           # User notes storage
+│   └── user_<uuid>/                 # Per-user folders
+└── README.md
+```
+
+## 🔒 Security
+
+- **JWT Authentication** - Secure token-based auth
+- **Password Hashing** - Bcrypt with salt rounds
+- **Path Validation** - Prevents directory traversal
+- **CORS Protection** - Configured for production
+- **SQL Injection Protection** - SQLAlchemy ORM
+- **Privacy Enforcement** - Backend validates file access
+
+## 🌍 Deployment (Railway)
+
+See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed deployment instructions.
+
+**Quick steps:**
+1. Push to GitHub
+2. Connect Railway to your repo
+3. Add environment variables
+4. Deploy!
+
+**Environment Variables:**
+- `DATABASE_URL` - PostgreSQL connection (Railway provides)
+- `SECRET_KEY` - JWT secret (generate with `openssl rand -hex 32`)
+- `VITE_API_URL` - Frontend → Backend URL
+
+## 📖 User Guide
+
+### Creating Notes
+
+**Option 1: Inline Creation (Recommended)**
+1. Hover over any folder in the tree
+2. Click the `📄` or `📁` button
+3. Type name → Press Enter
+
+**Option 2: Root Level**
+1. Click `📁+` or `📄+` at top of tree
+2. Type name → Press Enter
+
+### Making Notes Public
+
+1. Open a note in the editor
+2. Look for the privacy toggle (🔒 or 🌐) in toolbar
+3. Click to toggle Private ↔ Public
+4. Public notes appear in the feed immediately
+
+### Viewing Public Notes
+
+- **Public Feed**: Go to landing page (`/`)
+- **User Profiles**: Click any username → see all their public notes
+- **Direct Link**: Share note URL: `/note/{id}`
+
+## 🛠️ API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - Create account
+- `POST /api/auth/login` - Get JWT token
+- `GET /api/auth/me` - Get current user
+
+### Files (Protected)
 - `GET /api/files/tree` - Get folder tree
 - `GET /api/files/content?path=<path>` - Get file content
 - `POST /api/files/` - Create file
 - `PUT /api/files/` - Update file
 - `DELETE /api/files/?path=<path>` - Delete file
-- `GET /api/files/search?q=<query>` - Search files
+- `PATCH /api/files/{id}/privacy?is_public=<bool>` - Toggle privacy
+- `GET /api/files/metadata` - Get all file metadata
 
-### Folders
-- `POST /api/folders/` - Create folder
-- `DELETE /api/folders/?path=<path>` - Delete folder
+### Public (No Auth)
+- `GET /api/public/notes` - Get recent public notes
+- `GET /api/public/notes/{id}/content` - Get specific note
+- `GET /api/public/users/{id}/notes` - Get user's public notes
 
-See [backend/README.md](backend/README.md) for detailed API documentation.
+Full API docs: http://localhost:8000/docs
 
-## Development Workflow
+## 🎯 Roadmap
 
-### Daily Development (after frontend setup)
+- [ ] Comments on public notes
+- [ ] Likes/reactions
+- [ ] Tags/categories
+- [ ] Full-text search across public notes
+- [ ] Export to PDF
+- [ ] Mobile app
+- [ ] Collaborative editing
+- [ ] Custom domains
 
-**Terminal 1 - Backend:**
-```bash
-cd backend
-source venv/bin/activate
-uvicorn app.main:app --reload
-```
+## 🐛 Troubleshooting
 
-**Terminal 2 - Frontend:**
-```bash
-cd frontend
-npm run dev
-```
+### "Cannot connect to database"
+Check `DATABASE_URL` environment variable is set correctly.
 
-Then open http://localhost:5173 in your browser.
+### "Privacy toggle not working"
+Hard refresh browser (Ctrl+Shift+R). Check Railway deployment succeeded.
 
-## Notes Storage
+### "Notes not appearing in public feed"
+Ensure note is toggled to Public (🌐 icon). Check backend logs.
 
-All notes are stored as `.md` files in the `notes/` directory:
+## 📄 License
 
-```
-notes/
-├── algorithms/
-│   └── sorting.md
-├── stats/
-│   └── probability.md
-└── README.md
-```
+MIT License - Free to use and modify
 
-You can:
-- Edit files directly in your favorite editor (VS Code, Vim, etc.)
-- Organize notes in folders
-- Use git for version control
-- Back up by copying the `notes/` directory
+## 🤝 Contributing
 
-## Math Support
-
-Write math using LaTeX syntax:
-
-**Inline math:**
-```markdown
-The formula is $E = mc^2$
-```
-
-**Block math:**
-```markdown
-$$
-\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
-$$
-```
-
-## Security
-
-- **Path Validation**: Prevents directory traversal attacks
-- **Filename Validation**: Only allows safe characters
-- **CORS**: Configured for local development
-- **No Execution**: Files are never executed, only read/written
-
-## Implementation Phases
-
-- ✅ **Phase 1**: Backend with file operations
-- ✅ **Phase 2**: Frontend with React + Vite
-- ✅ **Phase 3**: Monaco Editor integration
-- ✅ **Phase 4**: Markdown preview with KaTeX
-- ✅ **Phase 5**: File operations UI (create, delete, auto-save)
-
-## Troubleshooting
-
-### Backend Issues
-
-**Port already in use:**
-```bash
-lsof -i :8000  # Find process
-kill -9 <PID>  # Kill process
-```
-
-**Import errors:**
-```bash
-cd backend
-source venv/bin/activate
-```
-
-### Frontend Issues (after Node.js installation)
-
-**Node not found:**
-- Install Node.js first (see Quick Start)
-
-**npm not found:**
-- Node.js installation includes npm
-
-**Dependencies not installing:**
-- Clear npm cache: `npm cache clean --force`
-- Remove node_modules: `rm -rf node_modules`
-- Reinstall: `npm install`
-
-## Next Steps
-
-1. ✅ Backend is complete and running
-2. ✅ Frontend code is complete
-3. **Install Node.js** (if not already installed)
-4. **Run `npm install`** in the frontend directory
-5. **Run `npm run dev`** to start the application
-6. **Open http://localhost:5173** and enjoy your knowledge base!
-
-## Documentation
-
-- [Backend README](backend/README.md) - Detailed backend documentation
-- [Frontend README](frontend/README.md) - Detailed frontend documentation
-- [Implementation Plan](~/.claude/plans/twinkly-riding-scroll.md) - Complete implementation plan
-- API Docs: http://localhost:8000/docs (interactive)
-
-## License
-
-MIT License - Free for personal use
-
-## Contributing
-
-This is a personal project, but feel free to fork and customize for your own use!
+This is a personal project, but suggestions and PRs are welcome!
 
 ---
 
-**Current Status**: Backend complete ✅ | Frontend complete ✅ | Ready to run after `npm install`! 🚀
+**Built with Claude Code** 🤖
