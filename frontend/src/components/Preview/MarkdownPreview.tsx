@@ -4,6 +4,7 @@
 
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
+import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 import { useFileStore } from '../../stores/fileStore';
@@ -27,7 +28,7 @@ export function MarkdownPreview() {
       <div className="max-w-4xl mx-auto p-8">
         <div className="prose prose-slate max-w-none">
           <ReactMarkdown
-            remarkPlugins={[remarkMath]}
+            remarkPlugins={[remarkMath, remarkGfm]}
             rehypePlugins={[rehypeKatex]}
             components={{
               // Custom code block styling
@@ -92,6 +93,39 @@ export function MarkdownPreview() {
                 <ol className="list-decimal list-inside space-y-1 my-4">
                   {children}
                 </ol>
+              ),
+              // Custom table styling
+              table: ({ children }) => (
+                <div className="overflow-x-auto my-6">
+                  <table className="min-w-full divide-y divide-gray-300 border border-gray-300">
+                    {children}
+                  </table>
+                </div>
+              ),
+              thead: ({ children }) => (
+                <thead className="bg-gray-50">
+                  {children}
+                </thead>
+              ),
+              tbody: ({ children }) => (
+                <tbody className="divide-y divide-gray-200 bg-white">
+                  {children}
+                </tbody>
+              ),
+              tr: ({ children }) => (
+                <tr>
+                  {children}
+                </tr>
+              ),
+              th: ({ children }) => (
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 border-r border-gray-300 last:border-r-0">
+                  {children}
+                </th>
+              ),
+              td: ({ children }) => (
+                <td className="px-4 py-3 text-sm text-gray-700 border-r border-gray-200 last:border-r-0">
+                  {children}
+                </td>
               ),
             }}
           >
