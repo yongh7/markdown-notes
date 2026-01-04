@@ -10,6 +10,7 @@ import remarkMath from 'remark-math';
 import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
+import { AbcNotation } from '../components/Preview/AbcNotation';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
@@ -161,6 +162,17 @@ export default function PublicNoteViewer() {
               components={{
                 code({ className, children, ...props }: any) {
                   const inline = !className;
+
+                  // Check if it's ABC notation
+                  const match = /language-(\w+)/.exec(className || '');
+                  const lang = match ? match[1] : '';
+
+                  if (lang === 'abc' && !inline) {
+                    // Render ABC notation as sheet music
+                    return <AbcNotation notation={String(children).trim()} />;
+                  }
+
+                  // Regular code block rendering
                   return inline ? (
                     <code
                       className="bg-gray-100 text-pink-600 px-1.5 py-0.5 rounded text-sm font-mono"

@@ -1,5 +1,5 @@
 /**
- * Markdown preview component with KaTeX math rendering
+ * Markdown preview component with KaTeX math rendering and ABC music notation
  */
 
 import ReactMarkdown from 'react-markdown';
@@ -8,6 +8,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 import { useFileStore } from '../../stores/fileStore';
+import { AbcNotation } from './AbcNotation';
 
 export function MarkdownPreview() {
   const { content, currentFile } = useFileStore();
@@ -31,9 +32,20 @@ export function MarkdownPreview() {
             remarkPlugins={[remarkMath, remarkGfm]}
             rehypePlugins={[rehypeKatex]}
             components={{
-              // Custom code block styling
+              // Custom code block styling with ABC notation support
               code({ node, className, children, ...props }: any) {
                 const inline = !className;
+
+                // Check if it's ABC notation
+                const match = /language-(\w+)/.exec(className || '');
+                const lang = match ? match[1] : '';
+
+                if (lang === 'abc' && !inline) {
+                  // Render ABC notation as sheet music
+                  return <AbcNotation notation={String(children).trim()} />;
+                }
+
+                // Regular code block rendering
                 return inline ? (
                   <code
                     className="bg-gray-100 text-pink-600 px-1.5 py-0.5 rounded text-sm font-mono"
