@@ -22,9 +22,18 @@ export function AbcNotation({ notation }: AbcNotationProps) {
         // Render ABC notation as sheet music
         abcjs.renderAbc(containerRef.current, notation, {
           responsive: 'resize',
-          staffwidth: 740,
+          staffwidth: 800,  // Wider staff for better spacing
           scale: 1.0,
           add_classes: true,
+          wrap: {
+            minSpacing: 1.8,  // Minimum spacing between notes
+            maxSpacing: 2.7,  // Maximum spacing between notes
+            preferredMeasuresPerLine: 4,  // Prefer 4 measures per line
+          },
+          paddingbottom: 30,
+          paddingtop: 30,
+          paddingleft: 10,
+          paddingright: 10,
         });
       } catch (error) {
         console.error('Failed to render ABC notation:', error);
@@ -40,7 +49,7 @@ export function AbcNotation({ notation }: AbcNotationProps) {
 
   return (
     <div className="my-6 p-4 bg-white border border-gray-300 rounded-lg overflow-x-auto">
-      <div ref={containerRef} className="abc-notation" />
+      <div ref={containerRef} className="abc-notation min-w-full" />
     </div>
   );
 }
